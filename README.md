@@ -2,6 +2,19 @@
 
 Gesture detection application.
 
+## Important Python Scripts
+
+1. gesture.py
+  * Used to load in a single gesture file.
+  * Generates feature set, which at the time, reads the magnitudes of the frequencies just above and below the output frequency.
+2. userset.py
+  * Used to load a session of gestures (see "Sessions" below).
+  * Multiple users participated in multiple sessions (see "Sessions" below).
+3. names.py
+  * Contains the long and short names of the gestures.
+4. Notebooks
+  * Contain some analysis of the gesture.
+
 ## UltraGesturePhone Folder
 
 This is the android application built in the Eclipse IDE that collects gesture data.  It's a relatively straigtforwad app that asks a user to preform each gesture in a random order.  While the user is executing a gesture, the phone emits a high-frequency soundwave.  The movement from the user's hand is picked up in the change in the high-frequency tone due to doppler effect.  Samsung Galaxy S5's also have an array of sensors on the top right of the screen that detects hand swipes at any angle.  This data is also used for classifying gestures.
