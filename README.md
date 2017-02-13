@@ -1,0 +1,42 @@
+# UltraGesture
+
+Gesture detection application.
+
+## Data Folder
+
+### Sessions
+
+Data here is separated by session and gesture.  For each file, the first number is the session number and the following word is the shorthand notation for the prompted gesture.
+
+Sessions 0-6 were test sessions and are not included.
+
+Sessions 7-35 were done by students.  They were not asked to do multiple sessions.
+
+The remaining sessions were done by adults who were asked to repeat the sessions at most ten times.  Each of the following bullets represents a user with their corresponding session numbers.
+
+* 36, 37, 43, 47, 52, 56, 60, 64, 91, 92
+* 38, 39, 42, 46, 51, 55, 59, 63, 67, 70
+* 40, 45, 49, 54, 58, 62, 66, 69, 73, 75
+* 41, 44, 48, 53, 57, 61, 65, 68, 71, 74
+* 72, 76, 77, 78, 79, 80, 81, 82, 83, 84
+* 85, 86, 87, 88, 89, 90, 94, 95, 96, 97
+* 93, 100, 102, 110, 111, 112, 113, 114, 115, 116
+* 98, 99, 101, 103, 104, 105, 106 107, 108, 109
+
+### .gest files
+
+The gesture files were recorded using a Samsung Galaxy S5.  Use the Gesture class in gesture.py to read in this data. Here is the file makeup:
+
+1. Header
+  1. revision (byte)
+  2. sampleRate (int)
+  3. freq1 (int)
+  4. freq2 (int)
+  5. numSamples (int)
+  6. numDirSamples (byte)
+  7. duration (long)
+2. Audio samples (short * numSamples)
+3. Direction samples (3 ints * numDirSamples)
+  1. timestamp (int)
+  2. velocity (int)
+  3. angle (int)
