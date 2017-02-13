@@ -2,7 +2,13 @@
 
 Gesture detection application.
 
+## UltraGesturePhone Folder
+
+This is the android application built in the Eclipse IDE that collects gesture data.  It's a relatively straigtforwad app that asks a user to preform each gesture in a random order.  While the user is executing a gesture, the phone emits a high-frequency soundwave.  The movement from the user's hand is picked up in the change in the high-frequency tone due to doppler effect.  Samsung Galaxy S5's also have an array of sensors on the top right of the screen that detects hand swipes at any angle.  This data is also used for classifying gestures.
+
 ## Data Folder
+
+This is where all of the data files are.  Below is a brief description of the gesture files.
 
 ### Sessions
 
