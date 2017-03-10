@@ -9,9 +9,9 @@ import edu.samsung.ultragesture.R;
 
 class Gesture {
 	
-	private String mName;
-	private String mDesc;
-	private String mSName;
+	private final String mName;
+	private final String mDesc;
+	private final String mSName;
 	
 	//No instantiations
 	private Gesture(String n, String s, String d)

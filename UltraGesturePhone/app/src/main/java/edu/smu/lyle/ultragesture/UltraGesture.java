@@ -58,16 +58,17 @@ public class UltraGesture extends Activity implements ChangeListener {
 
     @BindString(R.string.gesture_name_generic) String GESTURE_NAME_GENERIC;
     @BindString(R.string.gesture_desc_generic) String GESTURE_DESCRIPTION_GENERIC;
+    @BindString(R.string.go_string) String GO_STRING;
 
     private TestThread mTestThread;
 
-    Condition condition = Condition.INACTIVE;
+    private Condition condition = Condition.INACTIVE;
 
     private SgestureHand mSGestureHand = null;
     private int mLastSpeed = -1;
     private int mLastAngle = -1;
 
-    private Handler mHandler = new Handler(Looper.getMainLooper()) {
+    private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
             //Get the current state
@@ -81,7 +82,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 mCountdownText.setText(Integer.toString((int)Math.ceil(state.countdownTime / 1000)));
             }
             else if(state.countdownTime == 0) {
-                mCountdownText.setText(R.string.go_string);
+                mCountdownText.setText(GO_STRING);
             }
             else if(state.countdownTime == -1) {
                 mCountdownText.setText(R.string.done_string);
@@ -142,7 +143,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         pauseTest();
     }
 
-    void updateUI() {
+    private void updateUI() {
         switch (condition) {
             case ACTIVE:
                 mStartButton.setText("pause");
@@ -216,6 +217,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         else {
             mGestureText.setText(GESTURE_NAME_GENERIC);
             mDescText.setText(GESTURE_DESCRIPTION_GENERIC);
+            mCountdownText.setText(GO_STRING);
         }
     }
 
@@ -248,14 +250,14 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         private final long TIME_DELAY = 3000L;
         FrequencyEmitter emitter;
-        private List<Gesture> mGestures;
+        private final List<Gesture> mGestures;
 
         TestThread() {
             //Get list of gestures
             mGestures = Gesture.getGestures(UltraGesture.this);
             Collections.shuffle(mGestures);
 
-            emitter = new FrequencyEmitter(16000f, AudioPoller.SAMPLE_RATE);
+            emitter = new FrequencyEmitter(16000f);
         }
 
         @Override
@@ -301,7 +303,6 @@ public class UltraGesture extends Activity implements ChangeListener {
                 }
 
                 //Start emitting frequency
-                emitter = new FrequencyEmitter(16000f, AudioPoller.SAMPLE_RATE);
                 emitter.start();
 
                 //Generate filename, file, and writer
@@ -436,8 +437,8 @@ public class UltraGesture extends Activity implements ChangeListener {
     }
 
     private class TestState {
-        Gesture currentGesture;
-        long countdownTime;
+        final Gesture currentGesture;
+        final long countdownTime;
         boolean done = false;
 
         TestState(Gesture g, long time, boolean done) {

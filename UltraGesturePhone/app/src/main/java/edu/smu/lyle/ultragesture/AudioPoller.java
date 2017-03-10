@@ -8,18 +8,18 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
-public class AudioPoller {
+class AudioPoller {
 
 	private static final String TAG = "AudioPoller";
 	
 	private AudioRecord mAudioRecord;
-	private int mBufferSize;
+	private final int mBufferSize;
 	
 	private Thread mAPThread;
 	private boolean mStop;
 	
 	private PolledDataCallback mPolledCallback;
-	private Handler mHandler;
+	private final Handler mHandler;
 	
 	public static final int SAMPLE_RATE = 48000;
 	
@@ -99,7 +99,7 @@ public class AudioPoller {
 	
 	private class APRunnable implements Runnable {
 
-		private int mSampleSize;
+		private final int mSampleSize;
 		
 		public APRunnable(int sampleSize) {
 			mSampleSize = sampleSize;

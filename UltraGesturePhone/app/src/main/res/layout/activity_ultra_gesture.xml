@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/g_bg"
     android:orientation="vertical"
     tools:context="edu.smu.lyle.ultragesture.UltraGesture">
 
@@ -11,21 +10,24 @@
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp">
+        android:layout_margin="@dimen/material_component_cards_padding_from_edge_of_screen_to_card"
+        style="@style/CardView">
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/gesture_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:textSize="20sp"
-                android:fontFamily="sans-serif-medium"
+                android:paddingTop="@dimen/material_component_cards_primary_title_top_padding"
+                android:paddingBottom="@dimen/material_component_cards_primary_title_bottom_padding"
+                android:paddingLeft="@dimen/material_component_cards_left_and_right_padding"
+                android:paddingRight="@dimen/material_component_cards_left_and_right_padding"
+                style="@android:style/TextAppearance.Material.Headline"
                 android:text="@string/gesture_name_generic" />
 
             <TextView
@@ -33,8 +35,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:textSize="16sp"
-                android:text="@string/gesture_desc_generic" />
+                android:paddingTop="@dimen/material_component_cards_supporting_text_top_padding"
+                android:paddingBottom="@dimen/material_component_cards_supporting_text_bottom_padding"
+                android:paddingLeft="@dimen/material_component_cards_left_and_right_padding"
+                android:paddingRight="@dimen/material_component_cards_left_and_right_padding"
+                android:text="@string/gesture_desc_generic"
+                style="@android:style/TextAppearance.Material.Body1" />
 
         </LinearLayout>
 
@@ -45,10 +51,10 @@
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="center"
+        android:gravity="bottom|center_horizontal"
+        style="@android:style/TextAppearance.Material.Display4"
         android:textColor="@color/accent_dark"
-        android:textSize="100sp"
-        android:text="GO!" />
+        android:text="@string/go_string" />
 
     <LinearLayout
         android:orientation="horizontal"

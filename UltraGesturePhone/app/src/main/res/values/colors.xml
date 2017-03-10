@@ -1,20 +1,14 @@
 <resources>
 
-    <color name="black_overlay">#66000000</color>
-    <color name="g_red">#DA4936</color>
     <color name="g_blue">#7BC1BF</color>
-    <color name="g_background">#EDEDED</color>
     <color name="g_yellow">#BBBF6B</color>
-    <color name="g_dark">#BBBBBB</color>
     <color name="g_bg">#EFECE5</color>
 
-    <color name="primary">#F44336</color>
-    <color name="primary_dark">#D32F2F</color>
-    <color name="primary_light">#FFCDD2</color>
-    <color name="accent">#448AFF</color>
-    <color name="accent_dark">#2979FF</color>
-    <color name="accent_light">#82B1FF</color>
-
-    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="primary">@color/material_red_500</color>
+    <color name="primary_dark">@color/material_red_700</color>
+    <color name="primary_light">@color/material_red_100</color>
+    <color name="accent">@color/material_blue_accent_200</color>
+    <color name="accent_dark">@color/material_blue_accent_400</color>
+    <color name="accent_light">@color/material_blue_accent_100</color>
 
 </resources>
