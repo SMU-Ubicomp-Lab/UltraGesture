@@ -215,7 +215,8 @@ public class UltraGesture extends Activity implements OnClickListener, ChangeLis
 			//Increment test to next
 			SharedPreferences sp = getPreferences(MODE_PRIVATE);
 			sp.edit().putInt(TEST_ID, sp.getInt(TEST_ID, 0) + 1).apply();
-			
+
+            mRestartButton.setEnabled(false);
 			mGestureText.setText("Finished!");
 			mDescText.setText("Thank you for participating.");
 		}
