@@ -1,0 +1,27 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 17
+    buildToolsVersion "23.0.1"
+
+    defaultConfig {
+        applicationId "edu.samsung.ultragesture"
+        minSdkVersion 15 // To allow Instant Run in Android Studio
+        targetSdkVersion 17
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
+
+dependencies {
+    compile 'com.android.support:support-v4:18.0.0'
+    compile files('libs/androidplot-core-0.6.1-javadoc.jar')
+    compile files('libs/androidplot-core-0.6.1.jar')
+    compile files('libs/gesture-v2.0.3.jar')
+    compile files('libs/sdk-v1.0.0.jar')
+}
