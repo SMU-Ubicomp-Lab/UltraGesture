@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 17
-    buildToolsVersion "23.0.1"
+    compileSdkVersion 24
+    buildToolsVersion '25.0.0'
 
     defaultConfig {
         applicationId "edu.samsung.ultragesture"
-        minSdkVersion 15 // To allow Instant Run in Android Studio
-        targetSdkVersion 17
+        minSdkVersion 21
+        targetSdkVersion 24
     }
 
     buildTypes {
@@ -19,9 +19,13 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:18.0.0'
+    compile 'com.android.support:support-v4:24.0.+'
     compile files('libs/androidplot-core-0.6.1-javadoc.jar')
     compile files('libs/androidplot-core-0.6.1.jar')
     compile files('libs/gesture-v2.0.3.jar')
     compile files('libs/sdk-v1.0.0.jar')
+    compile 'com.android.support:cardview-v7:24.0.+'
+    compile 'com.jakewharton:butterknife:8.5.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+
 }

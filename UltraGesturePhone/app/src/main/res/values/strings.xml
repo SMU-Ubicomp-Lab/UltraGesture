@@ -7,8 +7,10 @@
     <string name="start_record">Start Recording</string>
     <string name="stop_record">Stop Recording</string>
     <string name="title_activity_ultra_gesture">UltraGesture</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="gesture_name_generic">Gesture Name</string>
+    <string name="gesture_desc_generic">Gesture instructions here.</string>
+    <string name="go_string">GO!</string>
+    <string name="done_string">Done!</string>
 
     <string-array name="gestures">
         <item>Flick Left</item>

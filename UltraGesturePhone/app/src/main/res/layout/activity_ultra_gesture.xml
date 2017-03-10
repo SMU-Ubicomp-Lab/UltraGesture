@@ -4,87 +4,79 @@
     android:layout_height="match_parent"
     android:background="@color/g_bg"
     android:orientation="vertical"
-    tools:context="edu.smu.lyle.ultragesture.UltraGesture" >
+    tools:context="edu.smu.lyle.ultragesture.UltraGesture">
 
-	<TextView
-	    android:id="@+id/title_text"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_gravity="center_horizontal"
-	    android:gravity="center"
-	    android:text="Gesture Detector"
-	    android:textSize="30sp"
-	    android:textColor="#FFFFFF"
-	    android:background="@color/g_red"
-	    android:paddingTop="10dp"
-	    android:paddingBottom="10dp" />
-	
-	<LinearLayout 
-	    android:orientation="vertical"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:background="@color/g_blue"
-	    android:padding="5dp"
-	    android:layout_margin="5dp">
-	    
-	    <TextView
-	        android:id="@+id/gesture_title"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center_horizontal"
-	        android:textSize="25sp"
-	        android:textColor="#FFFFFF"
-	        android:text="Gesture" />
-	    
-	    <TextView
-	        android:id="@+id/gesture_description"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:layout_gravity="center_horizontal"
-	        android:textSize="18sp"
-	        android:textColor="#FFFFFF"
-	        android:text="Gesture description here." />
-	    
-	</LinearLayout>
-	
-	<TextView 
-	    android:id="@+id/countdown"
-	    android:layout_width="fill_parent"
-	    android:layout_height="0dp"
-	    android:layout_weight="1"
-	    android:gravity="center"
-	    android:textColor="@color/g_blue"
-	    android:textSize="100sp"
-	    android:text="GO!" />
-	
-	<LinearLayout
-	    android:orientation="horizontal"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content" >
-	    
-	    <Button 
-	        android:id="@+id/start_stop_button"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:layout_margin="5dp"
-	        android:background="@color/g_blue"
-	        android:text="start"
-	        android:textColor="#FFFFFF"
-	        android:textSize="25sp" />
-	    
-	    <Button 
-	        android:id="@+id/restart_button"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:layout_margin="5dp"
-	        android:background="@drawable/restart_button"
-	        android:text="restart"
-	        android:textColor="#FFFFFF"
-	        android:textSize="25sp"
-	        android:enabled="false" />
-	    
-	</LinearLayout>
-	
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/gesture_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="20sp"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/gesture_name_generic" />
+
+            <TextView
+                android:id="@+id/gesture_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textSize="16sp"
+                android:text="@string/gesture_desc_generic" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:id="@+id/countdown"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:textColor="@color/accent_dark"
+        android:textSize="100sp"
+        android:text="GO!" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/buttonBarStyle">
+
+        <Button
+            android:id="@+id/start_stop_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="start"
+            android:background="?android:attr/dividerVertical"
+            android:textAllCaps="true"
+            style="?android:attr/buttonBarPositiveButtonStyle"/>
+
+        <Button
+            android:id="@+id/restart_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="restart"
+            android:enabled="false"
+            android:background="?android:attr/dividerVertical"
+            android:textAllCaps="true"
+            style="?android:attr/buttonBarNegativeButtonStyle"/>
+
+    </LinearLayout>
+
 </LinearLayout>

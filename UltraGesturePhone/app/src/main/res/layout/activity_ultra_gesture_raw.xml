@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".UltraGetsureRaw" >
+    tools:context="edu.smu.lyle.ultragesture.UltraGestureRaw" >
     
     <com.androidplot.xy.XYPlot
             android:id="@+id/xy_plot"

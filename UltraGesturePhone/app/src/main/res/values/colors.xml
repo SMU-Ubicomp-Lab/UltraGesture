@@ -8,4 +8,15 @@
     <color name="g_dark">#BBBBBB</color>
     <color name="g_bg">#EFECE5</color>
 
+    <color name="primary">#F44336</color>
+    <color name="primary_dark">#D32F2F</color>
+    <color name="primary_light">#FFCDD2</color>
+    <color name="accent">#448AFF</color>
+    <color name="accent_dark">#2979FF</color>
+    <color name="accent_light">#82B1FF</color>
+
+    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="windowBackground">#FFFFFF</color>
+    <color name="navigationBarColor">#000000</color>
+
 </resources>

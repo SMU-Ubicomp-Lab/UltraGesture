@@ -1,37 +1,31 @@
 package edu.smu.lyle.ultragesture;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-
-import com.androidplot.xy.BoundaryMode;
-import com.androidplot.xy.LineAndPointFormatter;
-import com.androidplot.xy.SimpleXYSeries;
-import com.androidplot.xy.XYPlot;
-import com.androidplot.xy.XYSeries;
-
-import edu.samsung.ultragesture.R;
-import edu.smu.lyle.ultragesture.AudioPoller.PolledDataCallback;
-import android.os.Bundle;
 import android.app.Activity;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.TextView;
 
-public class UltraGetsureRaw extends Activity implements PolledDataCallback {
+import com.androidplot.xy.LineAndPointFormatter;
+import com.androidplot.xy.SimpleXYSeries;
+import com.androidplot.xy.XYPlot;
+
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import edu.samsung.ultragesture.R;
+import edu.smu.lyle.ultragesture.AudioPoller.PolledDataCallback;
+
+public class UltraGestureRaw extends Activity implements PolledDataCallback {
 
 	private static final String TAG = "UltraGesture";
 	
@@ -50,7 +44,7 @@ public class UltraGetsureRaw extends Activity implements PolledDataCallback {
 	
 	//Graph update
 	private static final long UPDATE_DELAY = 100;
-	private long mLastUpdate = 0l;
+	private long mLastUpdate = 0L;
 	
 	//Recording variables
 	private boolean mRecording = false;
@@ -59,7 +53,7 @@ public class UltraGetsureRaw extends Activity implements PolledDataCallback {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_ultra_getsure_raw);
+		setContentView(R.layout.activity_ultra_gesture_raw);
 		
 		//Get the plot
 		mPlot = (XYPlot)findViewById(R.id.xy_plot);
