@@ -133,6 +133,6 @@ public class AudioPoller {
 	}
 	
 	public interface PolledDataCallback {
-		public void onPolledData(short[] pcmData);
+		void onPolledData(short[] pcmData);
 	}
 }

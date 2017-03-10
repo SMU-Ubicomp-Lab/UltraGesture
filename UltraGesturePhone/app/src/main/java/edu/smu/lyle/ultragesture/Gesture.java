@@ -1,12 +1,13 @@
 package edu.smu.lyle.ultragesture;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import edu.samsung.ultragesture.R;
-import android.content.Context;
 
-public class Gesture {
+class Gesture {
 	
 	private String mName;
 	private String mDesc;
@@ -20,21 +21,21 @@ public class Gesture {
 		mDesc = d;
 	}
 	
-	public String getName() {
+	String getName() {
 		return mName;
 	}
 	
-	public String getShortName() {
+	String getShortName() {
 		return mSName;
 	}
 	
-	public String getDesc() {
+	String getDesc() {
 		return mDesc;
 	}
 	
-	public static List<Gesture> getGestures(Context c) {
+	static List<Gesture> getGestures(Context c) {
 		//Create list
-		ArrayList<Gesture> out = new ArrayList<Gesture>();
+		List<Gesture> out = new ArrayList<>();
 		
 		//Populate from string resources
 		String names[] = c.getResources().getStringArray(R.array.gestures);

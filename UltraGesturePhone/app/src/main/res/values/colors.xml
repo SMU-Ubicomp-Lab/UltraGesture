@@ -16,7 +16,5 @@
     <color name="accent_light">#82B1FF</color>
 
     <color name="textColorPrimary">#FFFFFF</color>
-    <color name="windowBackground">#FFFFFF</color>
-    <color name="navigationBarColor">#000000</color>
 
 </resources>

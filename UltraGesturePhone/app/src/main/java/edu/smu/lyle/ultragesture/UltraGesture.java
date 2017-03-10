@@ -255,7 +255,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             mGestures = Gesture.getGestures(UltraGesture.this);
             Collections.shuffle(mGestures);
 
-            emitter = new FrequencyEmitter(16000f, 48000);
+            emitter = new FrequencyEmitter(16000f, AudioPoller.SAMPLE_RATE);
         }
 
         @Override
@@ -301,7 +301,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 }
 
                 //Start emitting frequency
-                emitter = new FrequencyEmitter(16000f, 48000);
+                emitter = new FrequencyEmitter(16000f, AudioPoller.SAMPLE_RATE);
                 emitter.start();
 
                 //Generate filename, file, and writer
@@ -315,7 +315,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                     //Write header
                     mRawWriter.writeByte(0); //Revision
-                    mRawWriter.writeInt(48000); //Sample rate
+                    mRawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
                     mRawWriter.writeInt(16000); //Frequency 1
                     mRawWriter.writeInt(0); //Frequency 2
                     mRawWriter.writeInt(0); //Number of audio samples (will rewrite later)
@@ -323,8 +323,8 @@ public class UltraGesture extends Activity implements ChangeListener {
                     mRawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
 
                     //Create the audio recorder
-                    int mBufferSize = AudioRecord.getMinBufferSize(48000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    AudioRecord mAudioRecord = new AudioRecord(AudioSource.MIC, 48000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, mBufferSize);
+                    int mBufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+                    AudioRecord mAudioRecord = new AudioRecord(AudioSource.MIC, AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, mBufferSize);
                     mAudioRecord.startRecording();
 
                     //Reset gesture data
