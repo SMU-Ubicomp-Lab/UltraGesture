@@ -20,6 +20,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:25.2.0'
+    compile 'com.android.support:design:25.2.0'
     compile files('libs/androidplot-core-0.6.1-javadoc.jar')
     compile files('libs/androidplot-core-0.6.1.jar')
     compile files('libs/gesture-v2.0.3.jar')

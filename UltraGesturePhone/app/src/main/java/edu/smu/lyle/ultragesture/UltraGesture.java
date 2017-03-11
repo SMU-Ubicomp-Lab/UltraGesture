@@ -12,7 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.view.WindowManager;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -25,6 +25,7 @@ import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -44,6 +45,14 @@ enum Condition {
     PAUSED,
 }
 
+enum MessageType {
+    SUCCESS,
+    FAILURE,
+    ALL_DONE,
+}
+
+class SwitchedToInactiveStateException extends Exception {}
+
 public class UltraGesture extends Activity implements ChangeListener {
 
     private static final String TAG = "UltraGesture";
@@ -55,6 +64,8 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindView(R.id.gesture_title) TextView mGestureText;
     @BindView(R.id.gesture_description) TextView mDescText;
     @BindView(R.id.countdown) TextView mCountdownText;
+
+    @BindView(R.id.superview) View superView;
 
     @BindString(R.string.gesture_name_generic) String GESTURE_NAME_GENERIC;
     @BindString(R.string.gesture_desc_generic) String GESTURE_DESCRIPTION_GENERIC;
@@ -71,25 +82,28 @@ public class UltraGesture extends Activity implements ChangeListener {
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
-            //Get the current state
-            TestState state = (TestState)inputMessage.obj;
+            //Get the current snapshot
+            TestSnapshot snapshot = (TestSnapshot)inputMessage.obj;
 
             //Display info
-            mGestureText.setText(state.currentGesture.getName());
-            mDescText.setText(state.currentGesture.getDesc());
+            mGestureText.setText(snapshot.currentGesture.getName());
+            mDescText.setText(snapshot.currentGesture.getDesc());
 
-            if(state.countdownTime > 0) {
-                mCountdownText.setText(Integer.toString((int)Math.ceil(state.countdownTime / 1000)));
+            if(snapshot.countdownTime > 0) {
+                mCountdownText.setText(Integer.toString((int)Math.ceil(snapshot.countdownTime / 1000)));
             }
-            else if(state.countdownTime == 0) {
+            else if(snapshot.countdownTime == 0) {
                 mCountdownText.setText(GO_STRING);
             }
-            else if(state.countdownTime == -1) {
-                mCountdownText.setText(R.string.done_string);
+            else if(snapshot.countdownTime == -1) {
+                if (snapshot.type == MessageType.FAILURE)
+                    mCountdownText.setText("Try again.");
+                else
+                    mCountdownText.setText(R.string.done_string);
             }
 
-            //Check done
-            if(state.done) {
+            //Check doneWithAllGestures
+            if(snapshot.type == MessageType.ALL_DONE) {
                 stopTest(true);
             }
         }
@@ -111,11 +125,11 @@ public class UltraGesture extends Activity implements ChangeListener {
         //Ensure directory exists
         File directory = new File("/storage/emulated/0/ultragesture/outputs/");
         if(!directory.exists()) {
-            directory.mkdirs();
+            if (directory.mkdirs())
+                Log.d(TAG, "Successfully created directory: " + directory.getName());
+            else
+                Log.d(TAG, "Failed to create directory: " + directory.getName());
         }
-
-        //Keep the screen on
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         //Set the volume
         AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
@@ -213,8 +227,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
             mGestureText.setText("Finished!");
             mDescText.setText("Thank you for participating.");
-        }
-        else {
+        } else {
             mGestureText.setText(GESTURE_NAME_GENERIC);
             mDescText.setText(GESTURE_DESCRIPTION_GENERIC);
             mCountdownText.setText(GO_STRING);
@@ -260,168 +273,135 @@ public class UltraGesture extends Activity implements ChangeListener {
             emitter = new FrequencyEmitter();
         }
 
-        private void sendMessage(Gesture g, long time, boolean done) {
+        private void sendMessage(Gesture g, long time, MessageType type) {
             Log.v(TAG, "Test update: " + g.getName() + " at " + time);
-            mHandler.obtainMessage(0, new TestState(g, time, done)).sendToTarget();
+            mHandler.obtainMessage(0, new TestSnapshot(g, time, type)).sendToTarget();
         }
 
         private void sendMessage(Gesture g, long time) {
             Log.v(TAG, "Test update: " + g.getName() + " at " + time);
-            mHandler.obtainMessage(0, new TestState(g, time)).sendToTarget();
+            mHandler.obtainMessage(0, new TestSnapshot(g, time)).sendToTarget();
         }
 
-        @Override
-        public void run() {
+        void discoverGestures() throws SwitchedToInactiveStateException {
             //Loop for each gesture
-            gloop:for(Gesture gesture : mGestures) {
-                //Send initial message
-                sendMessage(gesture, TIME_DELAY);
-
-                //Start countdown
-                long goalTime = System.currentTimeMillis() + TIME_DELAY;
-                long nextGoal = TIME_DELAY - 1000L;
-
-                long remainingTime;
-                boolean lastPaused = false;
-                while(nextGoal >= 0) {
-                    //Cancel logic
-                    if(condition == Condition.INACTIVE) {
-                        break gloop;
-                    }
-
-                    //Pausing logic
-                    if(condition == Condition.PAUSED) {
-                        goalTime = System.currentTimeMillis() + TIME_DELAY;
-                        nextGoal = TIME_DELAY - 1000L;
-
-                        if(!lastPaused)
-                            sendMessage(gesture, TIME_DELAY);
-
-                        lastPaused = true;
-                        continue;
-                    }
-                    else {
-                        lastPaused = false;
-                    }
-
-                    //Get the current time remaining
-                    remainingTime = goalTime - System.currentTimeMillis();
-                    if(remainingTime < nextGoal) {
-                        sendMessage(gesture, nextGoal);
-                        nextGoal -= 1000L;
-                    }
-                }
-
-                //Start emitting frequency
-                emitter.start();
-
+            for (final Gesture gesture : mGestures) {
                 //Generate filename, file, and writer
                 SharedPreferences sp = getPreferences(MODE_PRIVATE);
                 String filename = sp.getInt(TEST_ID, 0) + "_" + gesture.getShortName();
                 File rawFile = new File("/storage/emulated/0/ultragesture/outputs/" + filename + ".gest");
 
-                //Start writing to file
-                try {
-                    final DataOutputStream mRawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)));
+                try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
+                    writeHeader(rawWriter);
+                }
+                catch (IOException e) {
+                    Log.e(TAG, "IOException in writing to file.");
+                    System.exit(-3);
+                }
 
-                    //Write header
-                    mRawWriter.writeByte(0); //Revision
-                    mRawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
-                    mRawWriter.writeInt(FrequencyEmitter.FREQUENCY); //Frequency 1
-                    mRawWriter.writeInt(0); //Frequency 2
-                    mRawWriter.writeInt(0); //Number of audio samples (will rewrite later)
-                    mRawWriter.writeByte(0); //Number of direction samples
-                    mRawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
+                ArrayList<Integer> gestures = new ArrayList<>();
+                int numSamples = 0;
+                long lengthOfRecord = 0;
 
-                    //Create the audio recorder
-                    int mBufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    AudioRecord mAudioRecord = new AudioRecord(AudioSource.MIC, AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, mBufferSize);
-                    mAudioRecord.startRecording();
+                boolean didDetectGesture = false;
+                while (!didDetectGesture) {
+                    // Send initial message.
+                    sendMessage(gesture, TIME_DELAY);
+                    displayInstructions(gesture);
 
-                    //Reset gesture data
-                    ArrayList<Integer> gestures = new ArrayList<>();
+                    // Start emitting frequency.
+                    emitter.start();
+
+                    numSamples = 0;
+
+                    // Reset gesture data.
+                    gestures = new ArrayList<>();
                     mLastAngle = mLastSpeed = -1;
 
-                    //Create and start the audio poller
-                    short pcmData[] = new short[512];
-                    int state;
-                    int numSamples = 0;
-                    long startTime = System.nanoTime();
-                    while(startTime + 1000000000L > System.nanoTime()) {
-                        //Read in data
-                        state = mAudioRecord.read(pcmData, 0, 512);
+                    lengthOfRecord = 0;
 
-                        if(state == AudioRecord.ERROR_INVALID_OPERATION)
-                            Log.e(TAG, "Invalid operation");
-                        else if(state == AudioRecord.ERROR_BAD_VALUE)
-                            Log.e(TAG, "Invalid arguments");
-                        else if(state < 512)
-                            Log.e(TAG, "Buffer not filled");
+                    // Start writing to file.
+                    try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
 
-                        //Write data to file
-                        for(int x = 0; x < state; x++)
-                            mRawWriter.writeShort(pcmData[x]);
+                        //Create the audio recorder
+                        int bufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+                        AudioRecord mAudioRecord = new AudioRecord(AudioSource.MIC, AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+                        mAudioRecord.startRecording();
 
-                        //Increment count
-                        numSamples += state;
+                        //Create and start the audio poller
+                        short pcmData[] = new short[512];
+                        int state;
+                        long startTime = System.nanoTime();
+                        while (startTime + 1000000000L > System.nanoTime()) {
+                            //Read in data
+                            state = mAudioRecord.read(pcmData, 0, 512);
 
-                        if(mLastSpeed != -1) {
-                            Log.v(TAG, "Gesture detected");
+                            if (state == AudioRecord.ERROR_INVALID_OPERATION)
+                                Log.e(TAG, "Invalid operation");
+                            else if (state == AudioRecord.ERROR_BAD_VALUE)
+                                Log.e(TAG, "Invalid arguments");
+                            else if (state < 512)
+                                Log.e(TAG, "Buffer not filled");
 
-                            //Add data to list with timestamp
-                            gestures.add(numSamples);
-                            gestures.add(mLastSpeed);
-                            gestures.add(mLastAngle);
+                            //Write data to file
+                            for (int x = 0; x < state; x++)
+                                rawWriter.writeShort(pcmData[x]);
 
-                            //Reset gesture
-                            mLastAngle = mLastSpeed = -1;
+                            //Increment count
+                            numSamples += state;
+
+                            if (mLastSpeed != -1) {
+                                Log.v(TAG, "Gesture detected");
+
+                                //Add data to list with timestamp
+                                gestures.add(numSamples);
+                                gestures.add(mLastSpeed);
+                                gestures.add(mLastAngle);
+
+                                //Reset gesture
+                                mLastAngle = mLastSpeed = -1;
+                            }
+                        }
+
+
+                        //Get the length of the recording
+                        lengthOfRecord = System.nanoTime() - startTime;
+
+                        //Stop recording
+                        mAudioRecord.stop();
+                        mAudioRecord.release();
+
+                        //Stop emitting signal
+                        emitter.stop();
+
+                        if (gestures.size() == 0) {
+                            // TODO: Update so Snackbar works.
+                            // Snackbar.make(mCountdownText, "No gesture detected. Try again.", Snackbar.LENGTH_SHORT).show();
+                            sendMessage(gesture, -1, MessageType.FAILURE);
+                            try {
+                                Thread.sleep(1000L);
+                            } catch (InterruptedException e) { }
+                            continue;
+                        }
+                        didDetectGesture = true;
+
+
+                        //Write footer (sgesture movements)
+                        for (int x = 0; x < gestures.size(); x += 3) {
+                            rawWriter.writeInt(gestures.get(x + 0));  //Sample index
+                            rawWriter.writeInt(gestures.get(x + 1));    //speed
+                            rawWriter.writeInt(gestures.get(x + 2));  //angle
                         }
                     }
-
-                    //Get the length of the recording
-                    long lengthOfRecord = System.nanoTime() - startTime;
-
-                    //Stop recording
-                    mAudioRecord.stop();
-                    mAudioRecord.release();
-
-                    //Stop emitting signal
-                    emitter.stop();
-
-                    //Write footer (sgesture movements)
-                    for(int x = 0; x < gestures.size(); x+=3) {
-                        mRawWriter.writeInt(gestures.get(x + 0));  //Sample index
-                        mRawWriter.writeInt(gestures.get(x + 1));	//speed
-                        mRawWriter.writeInt(gestures.get(x + 2));  //angle
+                    catch (IOException e) {
+                        Log.e(TAG, "IOException in writing to file.");
+                        System.exit(-1);
                     }
+                }
 
-                    //Write ending
-                    mRawWriter.close();
+                updateHeader(rawFile, numSamples, gestures, lengthOfRecord);
 
-                    //Rewrite number of audio samples
-                    RandomAccessFile fout = new RandomAccessFile(rawFile, "rw");
-                    FileChannel fc = fout.getChannel();
-                    fc.position(13);
-                    fc.write(ByteBuffer.wrap(new byte[] {
-                            (byte)(numSamples >> 24),		//Number of samples
-                            (byte)(numSamples >> 16),
-                            (byte)(numSamples >> 8),
-                            (byte)(numSamples >> 0),
-                            (byte)(gestures.size() / 3),	//Number of direction samples
-                            (byte)(lengthOfRecord >> 56),   //Length of sample in nanoseconds
-                            (byte)(lengthOfRecord >> 48),
-                            (byte)(lengthOfRecord >> 40),
-                            (byte)(lengthOfRecord >> 32),
-                            (byte)(lengthOfRecord >> 24),
-                            (byte)(lengthOfRecord >> 16),
-                            (byte)(lengthOfRecord >> 8),
-                            (byte)(lengthOfRecord >> 0)
-                    }));
-                    fc.close();
-
-                } catch (Exception e) { }
-
-                //Send done signal
+                //Send doneWithAllGestures signal
                 sendMessage(gesture, -1);
 
                 //Wait a second to start next test
@@ -432,23 +412,106 @@ public class UltraGesture extends Activity implements ChangeListener {
 
             //Done!
             if(condition != Condition.INACTIVE)
-                sendMessage(mGestures.get(mGestures.size() - 1), -1, true);
+                sendMessage(mGestures.get(mGestures.size() - 1), -1, MessageType.ALL_DONE);
+        }
+
+        @Override
+        public void run() {
+            try {
+                discoverGestures();
+            }
+            catch (SwitchedToInactiveStateException e) {
+                // pass
+            }
+        }
+
+        private void updateHeader(File rawFile, int numSamples, ArrayList<Integer> gestures, long lengthOfRecord) {
+            try (FileChannel headerUpdater = new RandomAccessFile(rawFile, "rw").getChannel()){
+            //Rewrite number of audio samples
+            headerUpdater.position(13);
+            headerUpdater.write(ByteBuffer.wrap(new byte[] {
+                    (byte)(numSamples >> 24),		//Number of samples
+                    (byte)(numSamples >> 16),
+                    (byte)(numSamples >> 8),
+                    (byte)(numSamples >> 0),
+                    (byte)(gestures.size() / 3),	//Number of direction samples
+                    (byte)(lengthOfRecord >> 56),   //Length of sample in nanoseconds
+                    (byte)(lengthOfRecord >> 48),
+                    (byte)(lengthOfRecord >> 40),
+                    (byte)(lengthOfRecord >> 32),
+                    (byte)(lengthOfRecord >> 24),
+                    (byte)(lengthOfRecord >> 16),
+                    (byte)(lengthOfRecord >> 8),
+                    (byte)(lengthOfRecord >> 0)
+            }));
+            headerUpdater.close();
+
+            } catch (IOException e) {
+                Log.e(TAG, "Couldn't update file header.");
+                System.exit(-2);
+            }
+        }
+
+        private void writeHeader(DataOutputStream mRawWriter) throws IOException {
+            mRawWriter.writeByte(0); //Revision
+            mRawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
+            mRawWriter.writeInt(FrequencyEmitter.FREQUENCY); //Frequency 1
+            mRawWriter.writeInt(0); //Frequency 2
+            mRawWriter.writeInt(0); //Number of audio samples (will rewrite later)
+            mRawWriter.writeByte(0); //Number of direction samples
+            mRawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
+        }
+
+        private void displayInstructions(Gesture gesture) throws SwitchedToInactiveStateException{
+            //Start countdown
+            long goalTime = System.currentTimeMillis() + TIME_DELAY;
+            long nextGoal = TIME_DELAY - 1000L;
+
+            long remainingTime;
+            boolean lastPaused = false;
+            while(nextGoal >= 0) {
+                //Cancel logic
+                if(condition == Condition.INACTIVE) {
+                    throw new SwitchedToInactiveStateException();
+                }
+
+                //Pausing logic
+                if(condition == Condition.PAUSED) {
+                    goalTime = System.currentTimeMillis() + TIME_DELAY;
+                    nextGoal = TIME_DELAY - 1000L;
+
+                    if(!lastPaused)
+                        sendMessage(gesture, TIME_DELAY);
+
+                    lastPaused = true;
+                    continue;
+                } else {
+                    lastPaused = false;
+                }
+
+                //Get the current time remaining
+                remainingTime = goalTime - System.currentTimeMillis();
+                if(remainingTime < nextGoal) {
+                    sendMessage(gesture, nextGoal);
+                    nextGoal -= 1000L;
+                }
+            }
         }
     }
 
-    private class TestState {
+    private class TestSnapshot {
         final Gesture currentGesture;
         final long countdownTime;
-        boolean done = false;
+        MessageType type;
 
-        TestState(Gesture g, long time, boolean done) {
+        TestSnapshot(Gesture g, long time, MessageType type) {
             currentGesture = g;
             countdownTime = time;
-            this.done = done;
+            this.type = type;
         }
 
-        TestState(Gesture g, long time) {
-            this(g, time, false);
+        TestSnapshot(Gesture g, long time) {
+            this(g, time, MessageType.SUCCESS);
         }
     }
 }
