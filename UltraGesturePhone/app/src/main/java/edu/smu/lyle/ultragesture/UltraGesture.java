@@ -257,7 +257,17 @@ public class UltraGesture extends Activity implements ChangeListener {
             mGestures = Gesture.getGestures(UltraGesture.this);
             Collections.shuffle(mGestures);
 
-            emitter = new FrequencyEmitter(16000f);
+            emitter = new FrequencyEmitter();
+        }
+
+        private void sendMessage(Gesture g, long time, boolean done) {
+            Log.v(TAG, "Test update: " + g.getName() + " at " + time);
+            mHandler.obtainMessage(0, new TestState(g, time, done)).sendToTarget();
+        }
+
+        private void sendMessage(Gesture g, long time) {
+            Log.v(TAG, "Test update: " + g.getName() + " at " + time);
+            mHandler.obtainMessage(0, new TestState(g, time)).sendToTarget();
         }
 
         @Override
@@ -271,7 +281,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 long goalTime = System.currentTimeMillis() + TIME_DELAY;
                 long nextGoal = TIME_DELAY - 1000L;
 
-                long curTime;
+                long remainingTime;
                 boolean lastPaused = false;
                 while(nextGoal >= 0) {
                     //Cancel logic
@@ -295,8 +305,8 @@ public class UltraGesture extends Activity implements ChangeListener {
                     }
 
                     //Get the current time remaining
-                    curTime = goalTime - System.currentTimeMillis();
-                    if(curTime < nextGoal) {
+                    remainingTime = goalTime - System.currentTimeMillis();
+                    if(remainingTime < nextGoal) {
                         sendMessage(gesture, nextGoal);
                         nextGoal -= 1000L;
                     }
@@ -317,7 +327,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                     //Write header
                     mRawWriter.writeByte(0); //Revision
                     mRawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
-                    mRawWriter.writeInt(16000); //Frequency 1
+                    mRawWriter.writeInt(FrequencyEmitter.FREQUENCY); //Frequency 1
                     mRawWriter.writeInt(0); //Frequency 2
                     mRawWriter.writeInt(0); //Number of audio samples (will rewrite later)
                     mRawWriter.writeByte(0); //Number of direction samples
@@ -423,16 +433,6 @@ public class UltraGesture extends Activity implements ChangeListener {
             //Done!
             if(condition != Condition.INACTIVE)
                 sendMessage(mGestures.get(mGestures.size() - 1), -1, true);
-        }
-
-        private void sendMessage(Gesture g, long time, boolean done) {
-            Log.v(TAG, "Test update: " + g.getName() + " at " + time);
-            mHandler.obtainMessage(0, new TestState(g, time, done)).sendToTarget();
-        }
-
-        private void sendMessage(Gesture g, long time) {
-            Log.v(TAG, "Test update: " + g.getName() + " at " + time);
-            mHandler.obtainMessage(0, new TestState(g, time)).sendToTarget();
         }
     }
 

@@ -10,22 +10,24 @@ class FrequencyEmitter {
 	private static final String TAG = "FrequencyEmitter";
 	private AudioTrack mAudioTrack;
 
-	FrequencyEmitter(float frequency) {
+    static final int FREQUENCY = 16000;
+
+	FrequencyEmitter() {
 		//Get the size of the tone buffer
 		//Should be a multiple of the frequency
-        int size = (int)((double) AudioPoller.SAMPLE_RATE * frequency / AudioPoller.SAMPLE_RATE);
-		size = (int)(size * AudioPoller.SAMPLE_RATE / frequency);
+        int size = (int)((double) AudioPoller.SAMPLE_RATE * FREQUENCY / AudioPoller.SAMPLE_RATE);
+		size = (int)(size * AudioPoller.SAMPLE_RATE / FREQUENCY);
 		
 		//Create tone variables
-		double[] inPhaseTone = new double[AudioPoller.SAMPLE_RATE / (int) frequency];
-		double[] quadratureTone = new double[AudioPoller.SAMPLE_RATE / (int) frequency];
+		double[] inPhaseTone = new double[AudioPoller.SAMPLE_RATE / (int) FREQUENCY];
+		double[] quadratureTone = new double[AudioPoller.SAMPLE_RATE / (int) FREQUENCY];
 		
 		//Create the tone being used
 		byte tone[] = new byte[size * 2];
 		for(int x = 0; x < tone.length / 2; x+=2) {
 			//Get values for in phase and quadrature
-			double value = Math.sin(2 * Math.PI * x * frequency / AudioPoller.SAMPLE_RATE);
-			double qvalue = Math.sin(2 * Math.PI * x * frequency / AudioPoller.SAMPLE_RATE + Math.PI / 2);
+			double value = Math.sin(2 * Math.PI * x * FREQUENCY / AudioPoller.SAMPLE_RATE);
+			double qvalue = Math.sin(2 * Math.PI * x * FREQUENCY / AudioPoller.SAMPLE_RATE + Math.PI / 2);
 			
 			//Update tones accordingly
 			if(x / 2 < inPhaseTone.length) {
@@ -59,7 +61,7 @@ class FrequencyEmitter {
 	
 		//Set to loop forever
 		mAudioTrack.reloadStaticData();
-		int success = mAudioTrack.setLoopPoints(0, (int)(AudioPoller.SAMPLE_RATE / frequency) * 100, -1);
+		int success = mAudioTrack.setLoopPoints(0, (int)(AudioPoller.SAMPLE_RATE / FREQUENCY) * 100, -1);
 		if(success != AudioTrack.SUCCESS) {
 			Log.e(TAG, "Error setting loop points: " + success);
 		}
