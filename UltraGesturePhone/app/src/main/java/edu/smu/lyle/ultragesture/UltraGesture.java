@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.OperationCanceledException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -50,8 +51,6 @@ enum MessageType {
     FAILURE,
     ALL_DONE,
 }
-
-class SwitchedToInactiveStateException extends Exception {}
 
 public class UltraGesture extends Activity implements ChangeListener {
 
@@ -283,7 +282,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             mHandler.obtainMessage(0, new TestSnapshot(g, time)).sendToTarget();
         }
 
-        void discoverGestures() throws SwitchedToInactiveStateException {
+        void discoverGestures() {
             //Loop for each gesture
             for (final Gesture gesture : mGestures) {
                 //Generate filename, file, and writer
@@ -420,7 +419,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             try {
                 discoverGestures();
             }
-            catch (SwitchedToInactiveStateException e) {
+            catch (OperationCanceledException e) {
                 // pass
             }
         }
@@ -462,7 +461,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             mRawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
         }
 
-        private void displayInstructions(Gesture gesture) throws SwitchedToInactiveStateException{
+        private void displayInstructions(Gesture gesture) {
             //Start countdown
             long goalTime = System.currentTimeMillis() + TIME_DELAY;
             long nextGoal = TIME_DELAY - 1000L;
@@ -472,7 +471,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             while(nextGoal >= 0) {
                 //Cancel logic
                 if(condition == Condition.INACTIVE) {
-                    throw new SwitchedToInactiveStateException();
+                    throw new OperationCanceledException();
                 }
 
                 //Pausing logic
