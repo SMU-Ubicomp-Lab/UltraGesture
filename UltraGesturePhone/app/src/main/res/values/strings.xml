@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Ultra Gesture</string>
+    <string name="title_activity_ultra_gesture">UltraGesture</string>
+    <string name="gesture_name_generic">Gesture Name</string>
+    <string name="gesture_desc_generic">Gesture instructions here.</string>
+    <string name="go_string">GO!</string>
+    <string name="done_string">Done!</string>
+
+    <string-array name="gestures">
+        <item>Flick Left</item>
+        <item>Flick Right</item>
+        <item>Flick Up</item>
+        <item>Flick Down</item>
+        <item>Pan Left</item>
+        <item>Pan Right</item>
+        <item>Pan Up</item>
+        <item>Pan Down</item>
+        <item>Tap</item>
+        <item>Double Tap</item>
+        <item>Magic Wand</item>
+        <item>Whip</item>
+        <item>Click</item>
+        <item>Double Click</item>
+        <item>Wobble</item>
+        <item>Circle</item>
+        <item>Erase</item>
+        <item>Zoom Away</item>
+        <item>Zoom Towards</item>
+        <item>Snap</item>
+        <item>Slice Left</item>
+        <item>Slice Right</item>
+
+    </string-array>
+
+    <string-array name="gesture_shorts">
+        <item>flickl</item>
+        <item>flickr</item>
+        <item>flicku</item>
+        <item>flickd</item>
+        <item>panl</item>
+        <item>panr</item>
+        <item>panu</item>
+        <item>pand</item>
+        <item>tap</item>
+        <item>dtap</item>
+        <item>magicw</item>
+        <item>whip</item>
+        <item>click</item>
+        <item>dclick</item>
+        <item>wobble</item>
+        <item>circle</item>
+        <item>erase</item>
+        <item>zooma</item>
+        <item>zoomi</item>
+        <item>snap</item>
+        <item>slicel</item>
+        <item>slicer</item>
+
+    </string-array>
+
+    <string-array name="gesture_descs">
+        <item>Flick your hand from the right to the left side of the screen.</item>
+        <item>Flick your hand from the left to the right side of the screen.</item>
+        <item>Flick your hand from the bottom to the top side of the screen.</item>
+        <item>Flick your hand from the top to the bottom side of the screen.</item>
+        <item>Pan your palm from the right to the left side of the screen.</item>
+        <item>Pan your palm from the left to the right side of the screen.</item>
+        <item>Pan your palm from the bottom to the top side of the screen.</item>
+        <item>Pan your palm from the top to the bottom side of the screen.</item>
+        <item>Push your hand towards the screen once.</item>
+        <item>Push your hand towards the screen twice.</item>
+        <item>Magic wand spiral motion with fingers separated.</item>
+        <item>Quickly whip you hand towards and away from the screen.</item>
+        <item>Click with a two fingers in front of the screen.</item>
+        <item>Double Click with a two fingers in front of the screen.</item>
+        <item>Wobble your hand in front of the screen.</item>
+        <item>Pan your hand around the screen in a circle.</item>
+        <item>Quickly and repeatedly pan your hand left and right.</item>
+        <item>Zoom away from the screen.</item>
+        <item>Zoom into from the screen.</item>
+        <item>Snap with thumb and middle finger in front of the screen.</item>
+        <item>Slice with your hand from the right to the left of the screen.</item>
+        <item>Slice with your hand from the left to the right of the screen.</item>
+
+    </string-array>
+    
+</resources>

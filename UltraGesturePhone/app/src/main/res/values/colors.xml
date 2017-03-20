@@ -1,0 +1,14 @@
+<resources>
+
+    <color name="g_blue">#7BC1BF</color>
+    <color name="g_yellow">#BBBF6B</color>
+    <color name="g_bg">#EFECE5</color>
+
+    <color name="primary">@color/material_red_500</color>
+    <color name="primary_dark">@color/material_red_700</color>
+    <color name="primary_light">@color/material_red_100</color>
+    <color name="accent">@color/material_blue_accent_200</color>
+    <color name="accent_dark">@color/material_blue_accent_400</color>
+    <color name="accent_light">@color/material_blue_accent_100</color>
+
+</resources>

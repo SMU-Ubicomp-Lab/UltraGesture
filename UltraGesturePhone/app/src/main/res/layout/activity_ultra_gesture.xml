@@ -1,0 +1,99 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:keepScreenOn="true"
+    android:id="@+id/superview"
+    tools:context="edu.smu.lyle.ultragesture.UltraGesture">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/material_component_cards_padding_from_edge_of_screen_to_card"
+        style="@style/CardView">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/gesture_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="@dimen/material_component_cards_primary_title_top_padding"
+                android:paddingBottom="@dimen/material_component_cards_primary_title_bottom_padding"
+                android:paddingLeft="@dimen/material_component_cards_left_and_right_padding"
+                android:paddingRight="@dimen/material_component_cards_left_and_right_padding"
+                style="@android:style/TextAppearance.Material.Headline"
+                android:text="@string/gesture_name_generic" />
+
+            <TextView
+                android:id="@+id/gesture_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="@dimen/material_component_cards_supporting_text_top_padding"
+                android:paddingBottom="@dimen/material_component_cards_supporting_text_bottom_padding"
+                android:paddingLeft="@dimen/material_component_cards_left_and_right_padding"
+                android:paddingRight="@dimen/material_component_cards_left_and_right_padding"
+                android:text="@string/gesture_desc_generic"
+                style="@android:style/TextAppearance.Material.Body1" />
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <TextView
+        android:id="@+id/countdown"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="bottom|center_horizontal"
+        style="@android:style/TextAppearance.Material.Display3"
+        android:textColor="@color/accent_dark"
+        android:text="@string/go_string" />
+
+    <TextView
+        android:id="@+id/trial_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:textAlignment="center"
+        style="@android:style/TextAppearance.Material.Caption"
+        android:text="Trial number -1"/>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/buttonBarStyle">
+
+        <Button
+            android:id="@+id/start_stop_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="start"
+            android:background="?android:attr/dividerVertical"
+            android:textAllCaps="true"
+            style="?android:attr/buttonBarPositiveButtonStyle"/>
+
+        <Button
+            android:id="@+id/restart_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="restart"
+            android:enabled="false"
+            android:background="?android:attr/dividerVertical"
+            android:textAllCaps="true"
+            style="?android:attr/buttonBarNegativeButtonStyle"/>
+
+    </LinearLayout>
+
+</LinearLayout>
