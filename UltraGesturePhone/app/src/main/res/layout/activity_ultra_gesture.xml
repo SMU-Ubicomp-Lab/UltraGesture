@@ -54,13 +54,22 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="bottom|center_horizontal"
-        style="@android:style/TextAppearance.Material.Display4"
+        style="@android:style/TextAppearance.Material.Display3"
         android:textColor="@color/accent_dark"
         android:text="@string/go_string" />
 
+    <TextView
+        android:id="@+id/trial_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|center_horizontal"
+        android:textAlignment="center"
+        style="@android:style/TextAppearance.Material.Caption"
+        android:text="Trial number -1"/>
+
     <LinearLayout
         android:orientation="horizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="?android:attr/buttonBarStyle">
 

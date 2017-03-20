@@ -60,6 +60,8 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindView(R.id.start_stop_button) Button mStartButton;
     @BindView(R.id.restart_button) Button mRestartButton;
 
+    @BindView(R.id.trial_id) TextView mTrialText;
+
     @BindView(R.id.gesture_title) TextView mGestureText;
     @BindView(R.id.gesture_description) TextView mDescText;
     @BindView(R.id.countdown) TextView mCountdownText;
@@ -119,6 +121,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         SharedPreferences sp = getPreferences(MODE_PRIVATE);
         if(!sp.contains(TEST_ID)) {
             sp.edit().putInt(TEST_ID, 1).apply();
+
         }
 
         //Ensure directory exists
@@ -284,10 +287,19 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         void discoverGestures() {
             //Loop for each gesture
+            SharedPreferences sp = getPreferences(MODE_PRIVATE);
+            int trialID = sp.getInt(TEST_ID, 0);
+            Log.d(TAG, "Trial ID " + trialID);
+            final String trialLabel = "Trial number " + trialID;
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mTrialText.setText(trialLabel);
+                }
+            });
             for (final Gesture gesture : mGestures) {
                 //Generate filename, file, and writer
-                SharedPreferences sp = getPreferences(MODE_PRIVATE);
-                String filename = sp.getInt(TEST_ID, 0) + "_" + gesture.getShortName();
+                String filename = Integer.toString(trialID) + "_" + gesture.getShortName();
                 File rawFile = new File("/storage/emulated/0/ultragesture/outputs/" + filename + ".gest");
 
                 try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
@@ -406,7 +418,9 @@ public class UltraGesture extends Activity implements ChangeListener {
                 //Wait a second to start next test
                 try {
                     Thread.sleep(1000L);
-                } catch (InterruptedException e) { }
+                } catch (InterruptedException e) {
+                    //pass
+                }
             }
 
             //Done!
