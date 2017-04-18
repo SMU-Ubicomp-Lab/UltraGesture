@@ -1,8 +1,10 @@
 package edu.smu.lyle.ultragesture;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -12,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.OperationCanceledException;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -57,20 +60,30 @@ public class UltraGesture extends Activity implements ChangeListener {
     private static final String TAG = "UltraGesture";
     private static final String TEST_ID = "TEST_ID";
 
-    @BindView(R.id.start_stop_button) Button mStartButton;
-    @BindView(R.id.restart_button) Button mRestartButton;
+    @BindView(R.id.start_stop_button)
+    Button mStartButton;
+    @BindView(R.id.restart_button)
+    Button mRestartButton;
 
-    @BindView(R.id.trial_id) TextView mTrialText;
+    @BindView(R.id.trial_id)
+    TextView mTrialText;
 
-    @BindView(R.id.gesture_title) TextView mGestureText;
-    @BindView(R.id.gesture_description) TextView mDescText;
-    @BindView(R.id.countdown) TextView mCountdownText;
+    @BindView(R.id.gesture_title)
+    TextView mGestureText;
+    @BindView(R.id.gesture_description)
+    TextView mDescText;
+    @BindView(R.id.countdown)
+    TextView mCountdownText;
 
-    @BindView(R.id.superview) View superView;
+    @BindView(R.id.superview)
+    View superView;
 
-    @BindString(R.string.gesture_name_generic) String GESTURE_NAME_GENERIC;
-    @BindString(R.string.gesture_desc_generic) String GESTURE_DESCRIPTION_GENERIC;
-    @BindString(R.string.go_string) String GO_STRING;
+    @BindString(R.string.gesture_name_generic)
+    String GESTURE_NAME_GENERIC;
+    @BindString(R.string.gesture_desc_generic)
+    String GESTURE_DESCRIPTION_GENERIC;
+    @BindString(R.string.go_string)
+    String GO_STRING;
 
     private TestThread mTestThread;
 
@@ -80,23 +93,63 @@ public class UltraGesture extends Activity implements ChangeListener {
     private int mLastSpeed = -1;
     private int mLastAngle = -1;
 
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static final int RECORD_AUDIO = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO,
+    };
+
+    /**
+     * Checks if the app has permission to write to device storage
+     * <p>
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+    public static void verifyAudioPermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.RECORD_AUDIO);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    RECORD_AUDIO
+            );
+        }
+    }
+
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message inputMessage) {
             //Get the current snapshot
-            TestSnapshot snapshot = (TestSnapshot)inputMessage.obj;
+            TestSnapshot snapshot = (TestSnapshot) inputMessage.obj;
 
             //Display info
             mGestureText.setText(snapshot.currentGesture.getName());
             mDescText.setText(snapshot.currentGesture.getDesc());
 
-            if(snapshot.countdownTime > 0) {
-                mCountdownText.setText(Integer.toString((int)Math.ceil(snapshot.countdownTime / 1000)));
-            }
-            else if(snapshot.countdownTime == 0) {
+            if (snapshot.countdownTime > 0) {
+                mCountdownText.setText(Integer.toString((int) Math.ceil(snapshot.countdownTime / 1000)));
+            } else if (snapshot.countdownTime == 0) {
                 mCountdownText.setText(GO_STRING);
-            }
-            else if(snapshot.countdownTime == -1) {
+            } else if (snapshot.countdownTime == -1) {
                 if (snapshot.type == MessageType.FAILURE)
                     mCountdownText.setText("Try again.");
                 else
@@ -104,7 +157,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             }
 
             //Check doneWithAllGestures
-            if(snapshot.type == MessageType.ALL_DONE) {
+            if (snapshot.type == MessageType.ALL_DONE) {
                 stopTest(true);
             }
         }
@@ -119,14 +172,17 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         //Check output id in shared prefs
         SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        if(!sp.contains(TEST_ID)) {
+        if (!sp.contains(TEST_ID)) {
             sp.edit().putInt(TEST_ID, 1).apply();
 
         }
 
+        verifyStoragePermissions(this);
+        verifyAudioPermissions(this);
+
         //Ensure directory exists
         File directory = new File("/storage/emulated/0/ultragesture/outputs/");
-        if(!directory.exists()) {
+        if (!directory.exists()) {
             if (directory.mkdirs())
                 Log.d(TAG, "Successfully created directory: " + directory.getName());
             else
@@ -134,7 +190,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         }
 
         //Set the volume
-        AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
         int maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVol, maxVol);
 
@@ -143,7 +199,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         try {
             gesture.initialize(this);
-        } catch(Exception e) {
+        } catch (Exception e) {
             Log.e(TAG, "Couldn't load gesture", e);
         }
 
@@ -178,7 +234,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 break;
         }
     }
-	
+
 	/*
 	 * Test controls
 	 */
@@ -222,7 +278,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         mTestThread = null;
 
         //Check save
-        if(save) {
+        if (save) {
             //Increment test to next
             SharedPreferences sp = getPreferences(MODE_PRIVATE);
             sp.edit().putInt(TEST_ID, sp.getInt(TEST_ID, 0) + 1).apply();
@@ -236,7 +292,8 @@ public class UltraGesture extends Activity implements ChangeListener {
         }
     }
 
-    @OnClick(R.id.start_stop_button) void start_or_stop_or_pause() {
+    @OnClick(R.id.start_stop_button)
+    void start_or_stop_or_pause() {
         switch (condition) {
             case INACTIVE:
                 startTest();
@@ -250,7 +307,8 @@ public class UltraGesture extends Activity implements ChangeListener {
         }
     }
 
-    @OnClick(R.id.restart_button) void restart_button() {
+    @OnClick(R.id.restart_button)
+    void restart_button() {
         stopTest(false);
     }
 
@@ -304,9 +362,8 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                 try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
                     writeHeader(rawWriter);
-                }
-                catch (IOException e) {
-                    Log.e(TAG, "IOException in writing to file.");
+                } catch (IOException e) {
+                    Log.e(TAG, "Exception: " + Log.getStackTraceString(e));
                     System.exit(-3);
                 }
 
@@ -322,6 +379,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                     // Start emitting frequency.
                     emitter.start();
+                    Log.d(TAG, "Emitter started!");
 
                     numSamples = 0;
 
@@ -343,7 +401,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                         short pcmData[] = new short[512];
                         int state;
                         long startTime = System.nanoTime();
-                        while (startTime + 1000000000L > System.nanoTime()) {
+                        while (startTime + 4000000000L > System.nanoTime()) {
                             //Read in data
                             state = mAudioRecord.read(pcmData, 0, 512);
 
@@ -384,14 +442,14 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                         //Stop emitting signal
                         emitter.stop();
+                        Log.d(TAG, "Emitter stopped!");
 
                         if (gestures.size() == 0) {
-                            // TODO: Update so Snackbar works.
-                            // Snackbar.make(mCountdownText, "No gesture detected. Try again.", Snackbar.LENGTH_SHORT).show();
                             sendMessage(gesture, -1, MessageType.FAILURE);
                             try {
-                                Thread.sleep(1000L);
-                            } catch (InterruptedException e) { }
+                                Thread.sleep(5000L);
+                            } catch (InterruptedException e) {
+                            }
                             continue;
                         }
                         didDetectGesture = true;
@@ -403,8 +461,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                             rawWriter.writeInt(gestures.get(x + 1));    //speed
                             rawWriter.writeInt(gestures.get(x + 2));  //angle
                         }
-                    }
-                    catch (IOException e) {
+                    } catch (IOException e) {
                         Log.e(TAG, "IOException in writing to file.");
                         System.exit(-1);
                     }
@@ -424,7 +481,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             }
 
             //Done!
-            if(condition != Condition.INACTIVE)
+            if (condition != Condition.INACTIVE)
                 sendMessage(mGestures.get(mGestures.size() - 1), -1, MessageType.ALL_DONE);
         }
 
@@ -432,32 +489,31 @@ public class UltraGesture extends Activity implements ChangeListener {
         public void run() {
             try {
                 discoverGestures();
-            }
-            catch (OperationCanceledException e) {
+            } catch (OperationCanceledException e) {
                 // pass
             }
         }
 
         private void updateHeader(File rawFile, int numSamples, ArrayList<Integer> gestures, long lengthOfRecord) {
-            try (FileChannel headerUpdater = new RandomAccessFile(rawFile, "rw").getChannel()){
-            //Rewrite number of audio samples
-            headerUpdater.position(13);
-            headerUpdater.write(ByteBuffer.wrap(new byte[] {
-                    (byte)(numSamples >> 24),		//Number of samples
-                    (byte)(numSamples >> 16),
-                    (byte)(numSamples >> 8),
-                    (byte)(numSamples >> 0),
-                    (byte)(gestures.size() / 3),	//Number of direction samples
-                    (byte)(lengthOfRecord >> 56),   //Length of sample in nanoseconds
-                    (byte)(lengthOfRecord >> 48),
-                    (byte)(lengthOfRecord >> 40),
-                    (byte)(lengthOfRecord >> 32),
-                    (byte)(lengthOfRecord >> 24),
-                    (byte)(lengthOfRecord >> 16),
-                    (byte)(lengthOfRecord >> 8),
-                    (byte)(lengthOfRecord >> 0)
-            }));
-            headerUpdater.close();
+            try (FileChannel headerUpdater = new RandomAccessFile(rawFile, "rw").getChannel()) {
+                //Rewrite number of audio samples
+                headerUpdater.position(13);
+                headerUpdater.write(ByteBuffer.wrap(new byte[]{
+                        (byte) (numSamples >> 24),        //Number of samples
+                        (byte) (numSamples >> 16),
+                        (byte) (numSamples >> 8),
+                        (byte) (numSamples >> 0),
+                        (byte) (gestures.size() / 3),    //Number of direction samples
+                        (byte) (lengthOfRecord >> 56),   //Length of sample in nanoseconds
+                        (byte) (lengthOfRecord >> 48),
+                        (byte) (lengthOfRecord >> 40),
+                        (byte) (lengthOfRecord >> 32),
+                        (byte) (lengthOfRecord >> 24),
+                        (byte) (lengthOfRecord >> 16),
+                        (byte) (lengthOfRecord >> 8),
+                        (byte) (lengthOfRecord >> 0)
+                }));
+                headerUpdater.close();
 
             } catch (IOException e) {
                 Log.e(TAG, "Couldn't update file header.");
@@ -482,18 +538,18 @@ public class UltraGesture extends Activity implements ChangeListener {
 
             long remainingTime;
             boolean lastPaused = false;
-            while(nextGoal >= 0) {
+            while (nextGoal >= 0) {
                 //Cancel logic
-                if(condition == Condition.INACTIVE) {
+                if (condition == Condition.INACTIVE) {
                     throw new OperationCanceledException();
                 }
 
                 //Pausing logic
-                if(condition == Condition.PAUSED) {
+                if (condition == Condition.PAUSED) {
                     goalTime = System.currentTimeMillis() + TIME_DELAY;
                     nextGoal = TIME_DELAY - 1000L;
 
-                    if(!lastPaused)
+                    if (!lastPaused)
                         sendMessage(gesture, TIME_DELAY);
 
                     lastPaused = true;
@@ -504,7 +560,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                 //Get the current time remaining
                 remainingTime = goalTime - System.currentTimeMillis();
-                if(remainingTime < nextGoal) {
+                if (remainingTime < nextGoal) {
                     sendMessage(gesture, nextGoal);
                     nextGoal -= 1000L;
                 }
