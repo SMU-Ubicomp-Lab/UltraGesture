@@ -7,6 +7,8 @@
     <string name="gesture_desc_generic">Gesture instructions here.</string>
     <string name="go_string">GO!</string>
     <string name="done_string">Done!</string>
+    <string name="gesture_angel"> Gesture Angel</string>
+    <string name="gesture_speed"> Gesture Speed</string>
 
     <string-array name="gestures">
         <item>Flick Left</item>

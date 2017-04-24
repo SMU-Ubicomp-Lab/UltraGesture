@@ -44,6 +44,29 @@
                 android:text="@string/gesture_desc_generic"
                 style="@android:style/TextAppearance.Material.Body1" />
 
+
+            <TextView
+                android:id="@+id/gesture_angel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="24dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="16dp"
+                android:text="@string/gesture_angel" />
+
+            <TextView
+                android:id="@+id/gesture_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:paddingTop="16dp"
+                android:paddingBottom="24dp"
+                android:paddingLeft="24dp"
+                android:paddingRight="16dp"
+                android:text="@string/gesture_speed" />
+
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

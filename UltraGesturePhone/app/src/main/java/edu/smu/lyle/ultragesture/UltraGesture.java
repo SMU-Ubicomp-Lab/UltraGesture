@@ -75,6 +75,11 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindView(R.id.countdown)
     TextView mCountdownText;
 
+    @BindView(R.id.gesture_speed)
+    TextView mGestureSpeed;
+    @BindView(R.id.gesture_angel)
+    TextView mGestureAngel;
+
     @BindView(R.id.superview)
     View superView;
 
@@ -317,6 +322,8 @@ public class UltraGesture extends Activity implements ChangeListener {
         //Set the gesture data here
         mLastSpeed = info.getSpeed();
         mLastAngle = info.getAngle();
+        mGestureSpeed.setText("Gesture Speed:" + Integer.toString(mLastSpeed));
+        mGestureAngel.setText("Gesture Angel:" + Integer.toString(mLastAngle));
     }
 
     private class TestThread extends Thread {
@@ -401,7 +408,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                         short pcmData[] = new short[512];
                         int state;
                         long startTime = System.nanoTime();
-                        while (startTime + 4000000000L > System.nanoTime()) {
+                        while (startTime + 3000000000L > System.nanoTime()) {
                             //Read in data
                             state = mAudioRecord.read(pcmData, 0, 512);
 
