@@ -367,13 +367,6 @@ public class UltraGesture extends Activity implements ChangeListener {
                 String filename = Integer.toString(trialID) + "_" + gesture.getShortName();
                 File rawFile = new File("/storage/emulated/0/ultragesture/outputs/" + filename + ".gest");
 
-                try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
-                    writeHeader(rawWriter);
-                } catch (IOException e) {
-                    Log.e(TAG, "Exception: " + Log.getStackTraceString(e));
-                    System.exit(-3);
-                }
-
                 ArrayList<Integer> gestures = new ArrayList<>();
                 int numSamples = 0;
                 long lengthOfRecord = 0;
@@ -398,6 +391,15 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                     // Start writing to file.
                     try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
+
+                        // Write header
+                        rawWriter.writeByte(0); //Revision
+                        rawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
+                        rawWriter.writeInt(FrequencyEmitter.FREQUENCY); //Frequency 1
+                        rawWriter.writeInt(0); //Frequency 2
+                        rawWriter.writeInt(0); //Number of audio samples (will rewrite later)
+                        rawWriter.writeByte(0); //Number of direction samples
+                        rawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
 
                         //Create the audio recorder
                         int bufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
@@ -526,16 +528,6 @@ public class UltraGesture extends Activity implements ChangeListener {
                 Log.e(TAG, "Couldn't update file header.");
                 System.exit(-2);
             }
-        }
-
-        private void writeHeader(DataOutputStream mRawWriter) throws IOException {
-            mRawWriter.writeByte(0); //Revision
-            mRawWriter.writeInt(AudioPoller.SAMPLE_RATE); //Sample rate
-            mRawWriter.writeInt(FrequencyEmitter.FREQUENCY); //Frequency 1
-            mRawWriter.writeInt(0); //Frequency 2
-            mRawWriter.writeInt(0); //Number of audio samples (will rewrite later)
-            mRawWriter.writeByte(0); //Number of direction samples
-            mRawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
         }
 
         private void displayInstructions(Gesture gesture) {
