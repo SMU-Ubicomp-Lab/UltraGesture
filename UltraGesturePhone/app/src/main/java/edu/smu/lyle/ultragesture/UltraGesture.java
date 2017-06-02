@@ -36,6 +36,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindString;
 import butterknife.BindView;
@@ -77,8 +78,8 @@ public class UltraGesture extends Activity implements ChangeListener {
 
     @BindView(R.id.gesture_speed)
     TextView mGestureSpeed;
-    @BindView(R.id.gesture_angel)
-    TextView mGestureAngel;
+    @BindView(R.id.gesture_angle)
+    TextView mGestureAngle;
 
     @BindView(R.id.superview)
     View superView;
@@ -322,8 +323,10 @@ public class UltraGesture extends Activity implements ChangeListener {
         //Set the gesture data here
         mLastSpeed = info.getSpeed();
         mLastAngle = info.getAngle();
-        mGestureSpeed.setText("Gesture Speed:" + Integer.toString(mLastSpeed));
-        mGestureAngel.setText("Gesture Angel:" + Integer.toString(mLastAngle));
+
+        Locale locale = Locale.getDefault();
+        mGestureSpeed.setText(String.format(locale, "Gesture Speed: %d", mLastSpeed));
+        mGestureAngle.setText(String.format(locale, "Gesture Angle: %d", mLastAngle));
     }
 
     private class TestThread extends Thread {
@@ -458,6 +461,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                             try {
                                 Thread.sleep(5000L);
                             } catch (InterruptedException e) {
+                                /* No need to die because of this. */
                             }
                             continue;
                         }
@@ -485,7 +489,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 try {
                     Thread.sleep(1000L);
                 } catch (InterruptedException e) {
-                    //pass
+                    /* No need to die because of this. */
                 }
             }
 
