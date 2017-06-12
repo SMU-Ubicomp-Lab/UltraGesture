@@ -18,6 +18,7 @@ import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.samsung.android.sdk.gesture.Sgesture;
@@ -44,18 +45,6 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import edu.samsung.ultragesture.R;
 
-enum Condition {
-    INACTIVE,
-    ACTIVE,
-    PAUSED,
-}
-
-enum MessageType {
-    SUCCESS,
-    FAILURE,
-    ALL_DONE,
-}
-
 public class UltraGesture extends Activity implements ChangeListener {
 
     private static final String TAG = "UltraGesture";
@@ -66,6 +55,8 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindView(R.id.restart_button)
     Button mRestartButton;
 
+    @BindView(R.id.user_id)
+    EditText mUserText;
     @BindView(R.id.trial_id)
     TextView mTrialText;
 
@@ -98,6 +89,8 @@ public class UltraGesture extends Activity implements ChangeListener {
     private SgestureHand mSGestureHand = null;
     private int mLastSpeed = -1;
     private int mLastAngle = -1;
+
+    Storage mStorage = new Storage();
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
@@ -187,13 +180,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         verifyAudioPermissions(this);
 
         //Ensure directory exists
-        File directory = new File("/storage/emulated/0/ultragesture/outputs/");
-        if (!directory.exists()) {
-            if (directory.mkdirs())
-                Log.d(TAG, "Successfully created directory: " + directory.getName());
-            else
-                Log.d(TAG, "Failed to create directory: " + directory.getName());
-        }
+        mStorage.init();
 
         //Set the volume
         AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
@@ -367,8 +354,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             });
             for (final Gesture gesture : mGestures) {
                 //Generate filename, file, and writer
-                String filename = Integer.toString(trialID) + "_" + gesture.getShortName();
-                File rawFile = new File("/storage/emulated/0/ultragesture/outputs/" + filename + ".gest");
+                File rawFile = mStorage.getFile(mUserText.getText().toString(), Integer.toString(trialID), gesture);
 
                 ArrayList<Integer> gestures = new ArrayList<>();
                 int numSamples = 0;
@@ -477,6 +463,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "IOException in writing to file.");
+                        Log.e(TAG, e.getMessage());
                         System.exit(-1);
                     }
                 }

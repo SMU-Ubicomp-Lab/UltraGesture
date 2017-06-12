@@ -81,6 +81,14 @@
         android:textColor="@color/accent_dark"
         android:text="@string/go_string" />
 
+    <EditText
+        android:id="@+id/user_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number|none"
+        android:text="0"
+        />
+
     <TextView
         android:id="@+id/trial_id"
         android:layout_width="match_parent"
