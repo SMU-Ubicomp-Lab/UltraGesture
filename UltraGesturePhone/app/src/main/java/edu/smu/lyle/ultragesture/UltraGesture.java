@@ -416,6 +416,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                         while (startTime + 3000000000L > System.nanoTime()) {
                             //Read in data
                             state = mAudioRecord.read(pcmData, 0, 512);
+                            Log.i(TAG, String.valueOf(mAudioRecord.getSampleRate()));
 
                             if (state == AudioRecord.ERROR_INVALID_OPERATION)
                                 Log.e(TAG, "Invalid operation");
