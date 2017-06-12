@@ -10,7 +10,7 @@ class FrequencyEmitter {
 	private static final String TAG = "FrequencyEmitter";
 	private AudioTrack mAudioTrack;
 
-    static final int FREQUENCY = 18000;
+    static final int FREQUENCY = 15000;
 
 	FrequencyEmitter() {
 		//Get the size of the tone buffer
