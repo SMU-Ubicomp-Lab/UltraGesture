@@ -9,14 +9,15 @@ import java.io.File;
  */
 
 class Storage {
-    private String TAG = "Storage";
-    private String BASE_FOLDER_PATH = "/storage/emulated/0/ultragesture/outputs/";
-    private String FILENAME_FORMAT = "%s_%s_%s.gest";
-    private File baseFolder;
+    private static final String TAG = "Storage";
+    private static final String BASE_FOLDER_PATH = "/storage/emulated/0/ultragesture/outputs/";
+    private static final String FILENAME_FORMAT = "%s_%s_%s.gest";
+    private final File baseFolder;
 
     Storage() {
         super();
         baseFolder = new File(BASE_FOLDER_PATH);
+        this.init();
     }
 
     void init() {
