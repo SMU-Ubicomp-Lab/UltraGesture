@@ -2,7 +2,6 @@ package edu.smu.lyle.ultragesture;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioRecord;
@@ -13,11 +12,11 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.OperationCanceledException;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.samsung.android.sdk.SsdkUnsupportedException;
 import com.samsung.android.sdk.gesture.Sgesture;
 import com.samsung.android.sdk.gesture.SgestureHand;
 import com.samsung.android.sdk.gesture.SgestureHand.ChangeListener;
@@ -45,7 +44,6 @@ import edu.samsung.ultragesture.R;
 public class UltraGesture extends Activity implements ChangeListener {
 
     private static final String TAG = "UltraGesture";
-    private static final String TEST_ID = "TEST_ID";
 
     @BindView(R.id.start_stop_button)
     Button mStartButton;
@@ -68,9 +66,6 @@ public class UltraGesture extends Activity implements ChangeListener {
     TextView mGestureSpeed;
     @BindView(R.id.gesture_angle)
     TextView mGestureAngle;
-
-    @BindView(R.id.superview)
-    View superView;
 
     @BindString(R.string.gesture_name_generic)
     String GESTURE_NAME_GENERIC;
@@ -136,11 +131,11 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         //Create gesture
         Sgesture gesture = new Sgesture();
-
         try {
             gesture.initialize(this);
-        } catch (Exception e) {
-            Log.e(TAG, "Couldn't load gesture", e);
+        } catch (SsdkUnsupportedException e) {
+            Log.e(TAG, "Couldn't load Samsung SGesture", e);
+            throw new RuntimeException(e);
         }
 
         //Create gesture hand
@@ -264,7 +259,7 @@ public class UltraGesture extends Activity implements ChangeListener {
 
     private class TestThread extends Thread {
 
-        private final long TIME_DELAY = 3000L;
+        private final long COUNTDOWN_MILLISECONDS = 3000L;
         FrequencyEmitter emitter;
         private final List<Gesture> mGestures;
 
@@ -281,14 +276,8 @@ public class UltraGesture extends Activity implements ChangeListener {
             mHandler.obtainMessage(0, new TestSnapshot(g, time, type)).sendToTarget();
         }
 
-        private void sendMessage(Gesture g, long time) {
-            Log.v(TAG, "Test update: " + g.getName() + " at " + time);
-            mHandler.obtainMessage(0, new TestSnapshot(g, time)).sendToTarget();
-        }
-
         void discoverGestures() {
             //Loop for each gesture
-            SharedPreferences sp = getPreferences(MODE_PRIVATE);
             int trialID = mIdentity.getTrialNumber();
             Log.d(TAG, "Trial ID " + trialID);
             final String trialLabel = "Trial number " + trialID;
@@ -309,7 +298,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 boolean didDetectGesture = false;
                 while (!didDetectGesture) {
                     // Send initial message.
-                    sendMessage(gesture, TIME_DELAY);
+                    sendMessage(gesture, COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
                     displayInstructions(gesture);
 
                     // Start emitting frequency.
@@ -415,7 +404,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 updateHeader(rawFile, numSamples, movements, lengthOfRecord);
 
                 //Send doneWithAllGestures signal
-                sendMessage(gesture, -1);
+                sendMessage(gesture, -1, MessageType.SUCCESS);
 
                 //Wait a second to start next test
                 try {
@@ -468,8 +457,8 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         private void displayInstructions(Gesture gesture) {
             //Start countdown
-            long goalTime = System.currentTimeMillis() + TIME_DELAY;
-            long nextGoal = TIME_DELAY - 1000L;
+            long goalTime = System.currentTimeMillis() + COUNTDOWN_MILLISECONDS;
+            long nextGoal = COUNTDOWN_MILLISECONDS - 1000L;
 
             long remainingTime;
             boolean lastPaused = false;
@@ -481,11 +470,11 @@ public class UltraGesture extends Activity implements ChangeListener {
 
                 //Pausing logic
                 if (condition == Condition.PAUSED) {
-                    goalTime = System.currentTimeMillis() + TIME_DELAY;
-                    nextGoal = TIME_DELAY - 1000L;
+                    goalTime = System.currentTimeMillis() + COUNTDOWN_MILLISECONDS;
+                    nextGoal = COUNTDOWN_MILLISECONDS - 1000L;
 
                     if (!lastPaused)
-                        sendMessage(gesture, TIME_DELAY);
+                        sendMessage(gesture, COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
 
                     lastPaused = true;
                     continue;
@@ -496,7 +485,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 //Get the current time remaining
                 remainingTime = goalTime - System.currentTimeMillis();
                 if (remainingTime < nextGoal) {
-                    sendMessage(gesture, nextGoal);
+                    sendMessage(gesture, nextGoal, MessageType.SUCCESS);
                     nextGoal -= 1000L;
                 }
             }
@@ -512,10 +501,6 @@ public class UltraGesture extends Activity implements ChangeListener {
             currentGesture = g;
             countdownTime = time;
             this.type = type;
-        }
-
-        TestSnapshot(Gesture g, long time) {
-            this(g, time, MessageType.SUCCESS);
         }
     }
 }
