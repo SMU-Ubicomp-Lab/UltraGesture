@@ -356,7 +356,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                 //Generate filename, file, and writer
                 File rawFile = mStorage.getFile(mUserText.getText().toString(), Integer.toString(trialID), gesture);
 
-                ArrayList<Integer> gestures = new ArrayList<>();
+                ArrayList<Movement> movements = new ArrayList<>();
                 int numSamples = 0;
                 long lengthOfRecord = 0;
 
@@ -373,7 +373,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                     numSamples = 0;
 
                     // Reset gesture data.
-                    gestures = new ArrayList<>();
+                    movements = new ArrayList<>();
                     mLastAngle = mLastSpeed = -1;
 
                     lengthOfRecord = 0;
@@ -422,9 +422,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                                 Log.v(TAG, "Gesture detected");
 
                                 //Add data to list with timestamp
-                                gestures.add(numSamples);
-                                gestures.add(mLastSpeed);
-                                gestures.add(mLastAngle);
+                                movements.add(new Movement(numSamples, mLastSpeed, mLastAngle));
 
                                 //Reset gesture
                                 mLastAngle = mLastSpeed = -1;
@@ -443,10 +441,10 @@ public class UltraGesture extends Activity implements ChangeListener {
                         emitter.stop();
                         Log.d(TAG, "Emitter stopped!");
 
-                        if (gestures.size() == 0) {
+                        if (movements.size() == 0) {
                             sendMessage(gesture, -1, MessageType.FAILURE);
                             try {
-                                Thread.sleep(5000L);
+                                Thread.sleep(2000L);
                             } catch (InterruptedException e) {
                                 /* No need to die because of this. */
                             }
@@ -456,10 +454,10 @@ public class UltraGesture extends Activity implements ChangeListener {
 
 
                         //Write footer (sgesture movements)
-                        for (int x = 0; x < gestures.size(); x += 3) {
-                            rawWriter.writeInt(gestures.get(x + 0));  //Sample index
-                            rawWriter.writeInt(gestures.get(x + 1));    //speed
-                            rawWriter.writeInt(gestures.get(x + 2));  //angle
+                        for (int x = 0; x < movements.size(); x += 3) {
+                            rawWriter.writeInt(movements.get(x).index);  //Sample index
+                            rawWriter.writeInt(movements.get(x).speed);    //speed
+                            rawWriter.writeInt(movements.get(x).angle);  //angle
                         }
                     } catch (IOException e) {
                         Log.e(TAG, "IOException in writing to file.");
@@ -468,7 +466,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                     }
                 }
 
-                updateHeader(rawFile, numSamples, gestures, lengthOfRecord);
+                updateHeader(rawFile, numSamples, movements, lengthOfRecord);
 
                 //Send doneWithAllGestures signal
                 sendMessage(gesture, -1);
@@ -495,7 +493,7 @@ public class UltraGesture extends Activity implements ChangeListener {
             }
         }
 
-        private void updateHeader(File rawFile, int numSamples, ArrayList<Integer> gestures, long lengthOfRecord) {
+        private void updateHeader(File rawFile, int numSamples, ArrayList<Movement> gestures, long lengthOfRecord) {
             try (FileChannel headerUpdater = new RandomAccessFile(rawFile, "rw").getChannel()) {
                 //Rewrite number of audio samples
                 headerUpdater.position(13);
@@ -504,7 +502,7 @@ public class UltraGesture extends Activity implements ChangeListener {
                         (byte) (numSamples >> 16),
                         (byte) (numSamples >> 8),
                         (byte) (numSamples >> 0),
-                        (byte) (gestures.size() / 3),    //Number of direction samples
+                        (byte) (gestures.size()),    //Number of direction samples
                         (byte) (lengthOfRecord >> 56),   //Length of sample in nanoseconds
                         (byte) (lengthOfRecord >> 48),
                         (byte) (lengthOfRecord >> 40),
