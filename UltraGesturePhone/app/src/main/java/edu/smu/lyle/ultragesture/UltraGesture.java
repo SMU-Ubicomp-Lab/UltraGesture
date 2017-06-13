@@ -88,6 +88,7 @@ public class UltraGesture extends Activity implements ChangeListener {
     private int mLastAngle = -1;
 
     Storage mStorage = new Storage();
+    TrialIdentity mIdentity;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
@@ -124,12 +125,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         setContentView(R.layout.activity_ultra_gesture);
         ButterKnife.bind(this);
 
-        //Check output id in shared prefs
-        SharedPreferences sp = getPreferences(MODE_PRIVATE);
-        if (!sp.contains(TEST_ID)) {
-            sp.edit().putInt(TEST_ID, 1).apply();
-
-        }
+        mIdentity = new TrialIdentity(this);
 
         Permissions.verifyAllPermissions(this);
 
@@ -224,8 +220,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         //Check save
         if (save) {
             //Increment test to next
-            SharedPreferences sp = getPreferences(MODE_PRIVATE);
-            sp.edit().putInt(TEST_ID, sp.getInt(TEST_ID, 0) + 1).apply();
+            mIdentity.incrementTrialNumber();
 
             mGestureText.setText("Finished!");
             mDescText.setText("Thank you for participating.");
@@ -294,7 +289,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         void discoverGestures() {
             //Loop for each gesture
             SharedPreferences sp = getPreferences(MODE_PRIVATE);
-            int trialID = sp.getInt(TEST_ID, 0);
+            int trialID = mIdentity.getTrialNumber();
             Log.d(TAG, "Trial ID " + trialID);
             final String trialLabel = "Trial number " + trialID;
             runOnUiThread(new Runnable() {
