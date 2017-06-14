@@ -17,7 +17,7 @@ class FrequencyEmitter {
 		//Should be a multiple of the frequency
         /*int size = (int)((double) AudioPoller.SAMPLE_RATE * FREQUENCY / AudioPoller.SAMPLE_RATE);
 		size = (int)(size * AudioPoller.SAMPLE_RATE / FREQUENCY);*/
-        int size = (int)(AudioPoller.SAMPLE_RATE * 5 /* seconds */);
+        int size = (int)(AudioPoller.SAMPLE_RATE * 6 /* seconds */);
 		
 		//Create tone variables
 		double[] inPhaseTone = new double[AudioPoller.SAMPLE_RATE / (int) FREQUENCY];

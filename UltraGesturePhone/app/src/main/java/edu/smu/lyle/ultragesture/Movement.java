@@ -5,17 +5,37 @@ package edu.smu.lyle.ultragesture;
  */
 
 class Movement {
-    public final int index;
-    public final int speed;
-    public final int angle;
+    static final int JUNK = -137;
+    int index;
+    final int speed;
+    final int angle;
 
     public Movement() {
-        this(-137, -137, -137);
+        this(JUNK, JUNK, JUNK);
     }
 
-    public Movement(int index, int speed, int angle) {
+    Movement(int index, int speed, int angle) {
         this.index = index;
         this.speed = speed;
         this.angle = angle;
+    }
+
+    Movement (int speed, int angle) {
+        this.index = JUNK;
+        this.speed = speed;
+        this.angle = angle;
+    }
+
+    static Movement clear() {
+        return new Movement();
+    }
+
+    static boolean isValid(Movement m) {
+        // Nobody cares about the index.
+        return m.speed != JUNK && m.angle != JUNK;
+    }
+
+    boolean isValid() {
+        return Movement.isValid(this);
     }
 }
