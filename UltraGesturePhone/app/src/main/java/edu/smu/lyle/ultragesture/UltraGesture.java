@@ -64,7 +64,7 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindString(R.string.go_string)
     String GO_STRING;
 
-    private TestThread mTestThread;
+    private TrialThread mTrialThread;
 
     Condition condition;
 
@@ -181,9 +181,9 @@ public class UltraGesture extends Activity implements ChangeListener {
 
         //Create thread
         int trialID = mIdentity.getTrialNumber();
-        mTestThread = new TestThread(trialID);
+        mTrialThread = new TrialThread(trialID);
         mTrialText.setText(String.format("Trial number: %d", trialID));
-        mTestThread.start();
+        mTrialThread.start();
     }
 
     private void resumeTest() {
@@ -212,7 +212,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         }
 
         //Null the test thread
-        mTestThread = null;
+        mTrialThread = null;
 
         //Check save
         if (save) {
@@ -253,7 +253,7 @@ public class UltraGesture extends Activity implements ChangeListener {
         //Set the gesture data here
 
         Movement m = new Movement(info.getSpeed(), info.getAngle());
-        mTestThread.mLastMovement = m;
+        mTrialThread.mLastMovement = m;
 
         Locale locale = Locale.getDefault();
         if (m.isValid()) {
