@@ -81,6 +81,13 @@
         android:textColor="@color/accent_dark"
         android:text="@string/go_string" />
 
+    <Button
+        android:id="@+id/oops"
+        android:text="@string/oops"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"/>
+
     <EditText
         android:id="@+id/user_id"
         android:layout_width="match_parent"

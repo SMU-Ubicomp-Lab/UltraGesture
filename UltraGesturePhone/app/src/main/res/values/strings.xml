@@ -9,6 +9,7 @@
     <string name="done_string">Done!</string>
     <string name="gesture_angle"> Gesture Angle</string>
     <string name="gesture_speed"> Gesture Speed</string>
+    <string name="oops">Oops!</string>
 
     <string-array name="gestures">
         <item>Flick Left</item>

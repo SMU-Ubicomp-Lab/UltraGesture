@@ -261,6 +261,12 @@ public class UltraGesture extends Activity implements ChangeListener {
         return false;
     }
 
+    @OnClick(R.id.oops)
+    public void oopsPressed() {
+        Log.i(TAG, "Oops! Didn't like that input.");
+        // TODO: Add oops file-deletion and rollback behavior.
+    }
+
     @Override
     public void onChanged(/*Gesture*/Info info) {
         //Set the gesture data here
