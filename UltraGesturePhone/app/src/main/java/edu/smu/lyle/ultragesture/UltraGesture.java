@@ -8,7 +8,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -25,6 +28,7 @@ import butterknife.BindString;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.OnEditorAction;
 import edu.samsung.ultragesture.R;
 
 public class UltraGesture extends Activity implements ChangeListener {
@@ -246,6 +250,15 @@ public class UltraGesture extends Activity implements ChangeListener {
     @OnClick(R.id.restart_button)
     void restart_button() {
         stopTest(false);
+    }
+
+    @OnEditorAction(R.id.user_id)
+    public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if (actionId == EditorInfo.IME_ACTION_DONE &&
+                TextUtils.isEmpty(mUserText.getText().toString())) {
+            mUserText.setText("0");
+        }
+        return false;
     }
 
     @Override
