@@ -61,6 +61,9 @@ public class UltraGesture extends Activity implements ChangeListener {
     @BindView(R.id.gesture_angle)
     TextView mGestureAngle;
 
+    @BindView(R.id.oops)
+    Button mOopsButton;
+
     @BindString(R.string.gesture_name_generic)
     String GESTURE_NAME_GENERIC;
     @BindString(R.string.gesture_desc_generic)
@@ -155,12 +158,14 @@ public class UltraGesture extends Activity implements ChangeListener {
                 mStartButton.setBackgroundColor(ContextCompat.getColor(this, R.color.g_yellow));
                 mRestartButton.setEnabled(false);
                 mUserText.setEnabled(false);
+                mOopsButton.setEnabled(true);
                 break;
             case INACTIVE:
                 mStartButton.setText("start");
                 mStartButton.setBackgroundColor(ContextCompat.getColor(this, R.color.g_blue));
                 mRestartButton.setEnabled(false);
                 mUserText.setEnabled(true);
+                mOopsButton.setEnabled(false);
                 break;
             case PAUSED:
                 mStartButton.setText("resume");
@@ -259,6 +264,13 @@ public class UltraGesture extends Activity implements ChangeListener {
             mUserText.setText("0");
         }
         return false;
+    }
+
+    @OnClick(R.id.oops)
+    public void oopsPressed() {
+        Log.i(TAG, "Oops! Didn't like that input.");
+        mOopsButton.setEnabled(false);
+        mTrialThread.oops();
     }
 
     @Override

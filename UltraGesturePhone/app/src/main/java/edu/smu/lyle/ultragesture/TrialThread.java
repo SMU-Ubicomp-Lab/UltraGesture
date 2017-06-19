@@ -28,8 +28,10 @@ class TrialThread extends Thread {
     private FrequencyEmitter emitter;
     private final List<Gesture> mGestures;
 
-    int trialID;
+    private int trialID;
     Movement mLastMovement = new Movement();
+
+    private int currentGesture;  // TODO: Switch to Handlers and message queues between threads.
 
     TrialThread(int trialID) {
         this.trialID = trialID;
@@ -40,21 +42,21 @@ class TrialThread extends Thread {
         emitter = new FrequencyEmitter();
     }
 
+    void oops() {
+        currentGesture--;
+    }
+
     private void sendMessage(Gesture g, long time, MessageType type) {
         Log.v(TAG, "Test update: " + g.getName() + " at " + time);
         UltraGesture.getUltraGesture().getThreadHandler().obtainMessage(0, new CountdownStatus(g, time, type)).sendToTarget();
     }
 
-    private void sendTrialUpdate(int trialID) {
-
-    }
-
     private void discoverGestures() {
         //Loop for each gesture
         Log.d(TAG, "Trial ID " + trialID);
-        for (final Gesture gesture : mGestures) {
+        for (currentGesture = 0; currentGesture < mGestures.size(); currentGesture++) {
             //Generate filename, file, and writer
-            File rawFile = UltraGesture.getUltraGesture().mStorage.getFile(UltraGesture.getUltraGesture().mUserText.getText().toString(), Integer.toString(trialID), gesture);
+            File rawFile;
 
             ArrayList<Movement> movements = new ArrayList<>();
             int numSamples = 0;
@@ -62,8 +64,8 @@ class TrialThread extends Thread {
 
             while (true /* `break` when did detect movement */) {
                 // Send initial message.
-                sendMessage(gesture, COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
-                displayInstructions(gesture);
+                sendMessage(mGestures.get(currentGesture), COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
+                displayInstructions();
 
                 // Start emitting frequency.
                 emitter.start();
@@ -78,6 +80,8 @@ class TrialThread extends Thread {
                 lengthOfRecord = 0;
 
                 // Start writing to file.
+                rawFile = UltraGesture.getUltraGesture().mStorage.getFile(UltraGesture.getUltraGesture().mUserText.getText().toString(), Integer.toString(trialID), mGestures.get(currentGesture));
+
                 try (final DataOutputStream rawWriter = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(rawFile)))) {
 
                     // Write header
@@ -90,8 +94,11 @@ class TrialThread extends Thread {
                     rawWriter.writeLong(0); //Length of audio sample (in nanoseconds)
 
                     //Create the audio recorder
-                    int bufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-                    AudioRecord mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+                    int bufferSize = AudioRecord.getMinBufferSize(AudioPoller.SAMPLE_RATE,
+                            AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+                    AudioRecord mAudioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC,
+                            AudioPoller.SAMPLE_RATE, AudioFormat.CHANNEL_IN_MONO,
+                            AudioFormat.ENCODING_PCM_16BIT, bufferSize);
                     mAudioRecord.startRecording();
 
                     //Create and start the audio poller
@@ -143,7 +150,7 @@ class TrialThread extends Thread {
                     boolean didDetectMovement = (movements.size() > 0);
 
                     if (!didDetectMovement) {
-                        sendMessage(gesture, -1, MessageType.FAILURE);
+                        sendMessage(mGestures.get(currentGesture), -1, MessageType.FAILURE);
                         try {
                             Thread.sleep(2000L);
                         } catch (InterruptedException e) {
@@ -167,7 +174,7 @@ class TrialThread extends Thread {
             updateHeader(rawFile, numSamples, movements, lengthOfRecord);
 
             //Send doneWithAllGestures signal
-            sendMessage(gesture, -1, MessageType.SUCCESS);
+            sendMessage(mGestures.get(currentGesture), -1, MessageType.SUCCESS);
 
             //Wait a second to start next test
             try {
@@ -219,7 +226,7 @@ class TrialThread extends Thread {
         }
     }
 
-    private void displayInstructions(Gesture gesture) {
+    private void displayInstructions() {
         //Start countdown
         long goalTime = System.currentTimeMillis() + COUNTDOWN_MILLISECONDS;
         long nextGoal = COUNTDOWN_MILLISECONDS - 1000L;
@@ -238,7 +245,7 @@ class TrialThread extends Thread {
                 nextGoal = COUNTDOWN_MILLISECONDS - 1000L;
 
                 if (!lastPaused)
-                    sendMessage(gesture, COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
+                    sendMessage(mGestures.get(currentGesture), COUNTDOWN_MILLISECONDS, MessageType.SUCCESS);
 
                 lastPaused = true;
                 continue;
@@ -249,7 +256,7 @@ class TrialThread extends Thread {
             //Get the current time remaining
             remainingTime = goalTime - System.currentTimeMillis();
             if (remainingTime < nextGoal) {
-                sendMessage(gesture, nextGoal, MessageType.SUCCESS);
+                sendMessage(mGestures.get(currentGesture), nextGoal, MessageType.SUCCESS);
                 nextGoal -= 1000L;
             }
         }
