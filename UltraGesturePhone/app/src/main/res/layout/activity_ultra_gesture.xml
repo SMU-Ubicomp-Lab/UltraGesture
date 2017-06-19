@@ -86,15 +86,29 @@
         android:text="@string/oops"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"/>
+        android:layout_gravity="right"
+        android:enabled="false"/>
 
-    <EditText
-        android:id="@+id/user_id"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number|none"
-        android:text="0"
-        />
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/user_id"
+            android:text="User: " />
+
+        <EditText
+            android:id="@+id/user_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number|none"
+            android:text="0"
+            />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/trial_id"
